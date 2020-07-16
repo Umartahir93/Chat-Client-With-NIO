@@ -1,18 +1,10 @@
 
-U	java:S106J"9Replace this use of System.out or System.err by a logger.(§ş¢8¥ÆÉ›µ.
-[
-java:S1144z">Remove this unused private "createMessageReaderThread" method.(ß…Îÿ8î‹Ù›µ.
-[
-java:S1144s">Remove this unused private "createMessageWriterThread" method.(ìÀ†®8î‹Ù›µ.
-Q
-java:S3740E"/Provide the parametrized type for this generic.(‘¸¼³şÿÿÿÿ8ëíÆ›µ.
-n
-java:S1144S"QRemove this unused private "setUpInitialValuesForCommunicationWithServer" method.(À„¤·8–½›µ.
-v
-java:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(Àì8Ì©Ï›µ.
-d
-java:S1144o"BRemove this unused private "getUserValuesByAskingForInput" method.(¢ÎÒÁşÿÿÿÿ8î‹Ù›µ.
-Z	java:S106O"9Replace this use of System.out or System.err by a logger.(ÍÒøÃşÿÿÿÿ8´‚ş›µ.
-]	java:S125$"<This block of commented-out lines of code should be removed.(ò¿Ø¥úÿÿÿÿ8ØÎ¼›µ.
-£
-java:S1186o"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(¢ÎÒÁşÿÿÿÿ8Øì§›µ.
+U	java:S106I"9Replace this use of System.out or System.err by a logger.(§ş¢8áí¹µ.
+k
+java:S2118a"IMake the "com.client.domain.User" class "Serializable" or don't write it.( íËüÿÿÿÿ8Î°ó¼µ.
+U	java:S106M"9Replace this use of System.out or System.err by a logger.(§ş¢8®Ã‚ºµ.
+\
+java:S1854d":Remove this useless assignment to local variable "status".(•É¼øÿÿÿÿ8Îî¼µ.
+U	java:S106Q"9Replace this use of System.out or System.err by a logger.(§ş¢8ĞÓˆºµ.
+M
+java:S1481d"+Remove this unused "status" local variable.(•É¼øÿÿÿÿ8Îî¼µ.
