@@ -74,9 +74,9 @@ public class InternalCore {
                 System.out.println("\n" +
                         "=== Client Name (Thread) : "+key + " Time taken in milli seconds: "+ value.doubleValue() + " In seconds time is: "+value.doubleValue()/1000);
 
-                totalseconds +=value.doubleValue()/1000;
+
             }
-            System.out.println("==== Total Seconds: "+totalseconds);
+
         }
     }
 
@@ -99,6 +99,9 @@ public class InternalCore {
 
 
         }catch(Exception exception) {
+            log.error("Exception occurred" , exception);
+            exception.printStackTrace();
+
             log.info("Check if socket is closed");
             if(!clientSocketConnectedWithServer.isClosed()){
                 log.info("Closing the socket");
