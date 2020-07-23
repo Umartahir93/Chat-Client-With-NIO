@@ -19,18 +19,20 @@ public class ChatReader {
             ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
             StringBuilder stringBuilder = new StringBuilder();
 
-            while ((clientSocketConnectedWithServer.read(buffer))>0){
-                log.info("Reading message from buffer");
-                buffer.flip();
-
-                //System.out.println("================= "+buffer+" ==================");
-
-                byte[]bytes = new byte[buffer.limit()];
-                buffer.get(bytes);
-                stringBuilder.append(new String(bytes));
-                if(!buffer.hasRemaining())
-                    buffer.compact();
+            if((clientSocketConnectedWithServer.read(buffer)) == -1){
+                log.info("Removing socket from map since number of bytes are -1");
+                clientSocketConnectedWithServer.close(); //this line is so important without it your client can be halted (SEE IN DETAIL) Later
+                return;
             }
+
+            log.info("Reading message from buffer");
+            buffer.flip();
+
+            byte[]bytes = new byte[buffer.limit()];
+            buffer.get(bytes);
+
+            stringBuilder.append(new String(bytes));
+            if(!buffer.hasRemaining()) buffer.compact();
 
             log.info("Message read from the buffer");
             System.out.println(stringBuilder);

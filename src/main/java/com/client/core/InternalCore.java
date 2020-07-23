@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -19,10 +21,11 @@ public class InternalCore {
 
     public void initiateApplication(){
         log.info("initiateApplication() method execution started");
+        Selector selector = null;
         try {
 
             log.info("Calling setUpChannelAndSelectorForCommunicationWithServer method()");
-            Selector selector = setUpChannelAndSelectorForCommunicationWithServer();
+            selector = setUpChannelAndSelectorForCommunicationWithServer();
 
             log.info("Calling createMessageWriterThread method()");
             createMessageWriterThread(socketChannel);
@@ -33,8 +36,14 @@ public class InternalCore {
         } catch (Exception exception) {
             log.error("Cause of Error is ",exception);
             exception.printStackTrace();
+        }finally {
+            log.info("Executing finally block");
+            finallyBlockExecutionForGraceFulShutdown(selector);
+            log.info("initiateApplication method execution ended");
         }
-        log.info("initiateApplication method execution ended");
+
+
+
     }
 
     private Selector setUpChannelAndSelectorForCommunicationWithServer() throws IOException {
@@ -65,6 +74,7 @@ public class InternalCore {
         log.info("createMessageWriterThread method execution started");
         Thread messageWriterThread = new ChatWriter(socketChannel);
         log.info("Going to create writer thread");
+        messageWriterThread.setDaemon(true);
         messageWriterThread.start();
     }
 
@@ -92,6 +102,39 @@ public class InternalCore {
             }
         }
 
+    }
+
+    private void finallyBlockExecutionForGraceFulShutdown(Selector selector) {
+        log.info("Execution of selectorShutdown started");
+        if(selector != null && selector.isOpen()){
+
+            for (SelectionKey selectionKey : selector.keys()) {
+                log.info("Selecting Channel from key");
+                SocketChannel channel = (SocketChannel) selectionKey.channel();
+
+                try {
+                    channel.close();
+                    log.info("Socket Channel closed");
+
+                } catch (IOException e) {
+                    log.error("Error occurred while closing socket");
+                    e.printStackTrace();
+                }
+
+                log.info("Cancelling selection key");
+                selectionKey.cancel();
+
+            }
+
+            log.info("Closing the selector");
+            try {
+                selector.close();
+                log.info("Selector closed");
+            } catch (IOException e) {
+                log.error("Error occurred while closing selector");
+                e.printStackTrace();
+            }
+        }
     }
 
 }
