@@ -3,23 +3,21 @@ package com.client.core;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 
 @Slf4j
 @RequiredArgsConstructor
 public class ChatWriter extends Thread{
-    private final Socket clientSocketConnectedWithServerSocket;
-    private DataOutputStream messageWriterStream;
+    private final SocketChannel clientSocketChannelConnectedWithServer;
 
     @Override
     public void run() {
         try{
-
-            log.info("Calling setInitialValuesForCommunication method");
-            setInitialValuesForWritingToServer();
+            log.info("Execution of writer thread started");
+            log.info("Calling writingMessageToServer() method");
             writingMessageToServer();
 
         }catch (Exception exception){
@@ -29,26 +27,29 @@ public class ChatWriter extends Thread{
         }
     }
 
-    private void setInitialValuesForWritingToServer() throws IOException {
-        log.info("setInitialValuesForCommunication method execution started");
-
-        log.info("creating messageWriterStream object from socket");
-        messageWriterStream = new DataOutputStream(clientSocketConnectedWithServerSocket.getOutputStream());
-        log.info("created messageWriterStream object from socket");
-
-        log.info("setInitialValuesForCommunication method execution ended");
-
-    }
-
     private void writingMessageToServer() throws IOException {
-        log.info("Execution of sendMessageToServer started");
-        String message = null;
+        log.info("Execution of writingMessageToServer started");
+        byte [] message = null;
 
-        while (!clientSocketConnectedWithServerSocket.isClosed()){
+        while (clientSocketChannelConnectedWithServer.isOpen()){
+            log.info("Take input from user");
             Scanner writeMessage = new Scanner(System.in);
             System.out.println("Write Message: ");
-            message = writeMessage.nextLine();
-            messageWriterStream.writeUTF(message);
+            message = writeMessage.nextLine().getBytes();
+            log.info("Wrap that input into buffer");
+            ByteBuffer buffer = ByteBuffer.wrap(message);
+
+            try {
+                while(buffer.hasRemaining()){
+                    log.info("Sending message to the client");
+                    clientSocketChannelConnectedWithServer.write(buffer);
+                }
+
+            } catch (Exception exception) {
+                log.error("Exception occurred",exception);
+                exception.printStackTrace();
+            }
+
         }
         log.info("Execution of sendMessageToServer ended");
     }

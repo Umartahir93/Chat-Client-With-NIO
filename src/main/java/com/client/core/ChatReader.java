@@ -1,52 +1,43 @@
 package com.client.core;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 @Slf4j
-@RequiredArgsConstructor
-public class ChatReader extends Thread {
-    private final Socket clientSocketConnectedWithServerSocket;
-    private DataInputStream readingFromServerStream;
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class ChatReader {
 
-    @Override
-    public void run() {
-        log.info("Reading thread execution started");
-
+    protected static void readingFromServer(SocketChannel clientSocketConnectedWithServer) {
         try{
-            log.info("Calling setInitialValuesForReadingFromServer method");
-            setInitialValuesForReadingFromServer();
+            log.info("Execution of readingFromServer started");
+            log.info("Allocate a buffer for the message");
 
-            log.info("Calling readingFromServer method");
-            readingFromServer();
+            ByteBuffer buffer = ByteBuffer.allocateDirect(2048);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            while ((clientSocketConnectedWithServer.read(buffer))>0){
+                log.info("Reading message from buffer");
+                buffer.flip();
+
+                //System.out.println("================= "+buffer+" ==================");
+
+                byte[]bytes = new byte[buffer.limit()];
+                buffer.get(bytes);
+                stringBuilder.append(new String(bytes));
+                if(!buffer.hasRemaining())
+                    buffer.compact();
+            }
+
+            log.info("Message read from the buffer");
+            System.out.println(stringBuilder);
+
         }catch (Exception exception){
-            log.error("Cause of Error is",exception);
+            log.error("Exception occurred ",exception);
             exception.printStackTrace();
-        }
-
-        log.info("Reading thread execution ended");
-
-    }
-
-    private void setInitialValuesForReadingFromServer() throws IOException {
-        log.info("Execution of setInitialValuesForReadingFromServer method started");
-        log.info("creating dataInputStream object from socket");
-        readingFromServerStream = new DataInputStream(clientSocketConnectedWithServerSocket.getInputStream());
-        log.info("created dataInputStream object from socket");
-    }
-
-    private void readingFromServer() throws IOException {
-        log.info("Execution of readingFromServer started");
-
-        while (!clientSocketConnectedWithServerSocket.isClosed()) {
-            log.info("Waiting for messages from server");
-            log.info("Got the message, now we are printing the message");
-            System.out.println(readingFromServerStream.readUTF());
         }
 
         log.info("Execution of readingFromServer ended");
