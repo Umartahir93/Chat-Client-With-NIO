@@ -1,14 +1,18 @@
 package com.client.core;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.client.properties.Constants;
 
 
 @Slf4j
@@ -17,6 +21,10 @@ public class InternalCore {
     private final int serverSocketChannelPort;
     private final String hostName;
     private SocketChannel socketChannel;
+    private static int magicNumberUsedForClientIdentification;
+    @Setter @Getter
+    private static int userIdOfClientAllocatedByServer;
+
 
 
     public void initiateApplication(){
@@ -64,6 +72,7 @@ public class InternalCore {
         log.info("Registering socket with selector");
         socketChannel.register(selector, SelectionKey.OP_READ);
 
+
         log.info("Server Socket Channel registered with Selector");
         log.info("Execution of setUpChannelAndSelectorForCommunicationWithServer ended");
 
@@ -93,7 +102,7 @@ public class InternalCore {
                 if (selectionKey.isValid() && selectionKey.isReadable()) {
                     log.info("Read event has occurred");
                     log.info("Calling reading from server method");
-                    ChatReader.readingFromServer((SocketChannel) selectionKey.channel());
+                    ChatReader.getInstanceOfChatReader().readingFromServer((SocketChannel) selectionKey.channel());
                 }
 
                 log.info("Removing the selection key");
@@ -102,6 +111,17 @@ public class InternalCore {
             }
         }
 
+    }
+
+    public static int getMagicNumberUsedForClientIdentification() {
+        return magicNumberUsedForClientIdentification;
+    }
+
+    public static void initializeMagicNumberUsedForClientIdentification(){
+        log.info("Execution of initializeMagicNumberUsedForClientIdentification started");
+        log.info("Generating client identification number");
+        magicNumberUsedForClientIdentification = new Random(System.nanoTime()).nextInt(Constants.UPPER_LIMIT_FOR_RANDOM_NUMBER);
+        log.info("Execution of getMagicNumberUsedForClientIdentification ended");
     }
 
     private void finallyBlockExecutionForGraceFulShutdown(Selector selector) {
