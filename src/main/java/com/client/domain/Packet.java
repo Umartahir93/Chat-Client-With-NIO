@@ -4,8 +4,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
-
 
 /*
     ### Description ###
@@ -17,7 +15,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Builder
-public class MessagePacket {
+public class Packet {
     private int magicBytes;
     private MessageType messageType;
     private int messageSourceId;
